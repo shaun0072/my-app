@@ -18,9 +18,6 @@ const G = () => (
     <Grid.Column>
       <Header as="h3">Hello World</Header>
     </Grid.Column>
-    <Grid.Column>
-      <Header as="h3">Hello World</Header>
-    </Grid.Column>
   </Grid>
 )
 
