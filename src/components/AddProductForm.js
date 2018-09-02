@@ -9,23 +9,23 @@ export default class AddProductForm extends Component {
     super(props)
 
     this.state = {
-      vendors: [],
+      vendor: [],
       category_id: '',
       product_name: '',
       model_number: '',
       current_qty: [],
       min_qty: [],
-      vendor: '',
-      item_number: '',
-      link_to_item: '',
+      item_number: [],
+      link_to_item: [],
       location: [],
       description: '',
-      locationCount: 1
+      locationCount: 1,
+      vendorCount: 1
     }
   }
 
   componentDidMount() {
-    axios.get("http://localhost:80/my-app/src/server/php/get_categories.php")
+    axios.get("http://localhost:8080/my-app/src/server/php/get_categories.php")
       .then(res => {
         this.setState({
           categories : res.data,
@@ -36,7 +36,6 @@ export default class AddProductForm extends Component {
   handleChange = (e, { name, value }) => {this.setState({ [name]: value })}
 
   handleArrayChange = (e, { name, value, mykey }) => {
-    console.log("called")
     this.setState( prevState => {
       var newArray = [
         ...prevState[name].slice(0, mykey),
@@ -47,7 +46,16 @@ export default class AddProductForm extends Component {
     })
   }
 
-  handleResultSelect = (e, { result }) => this.setState({ vendor: result.title })
+  handleResultSelect = (e, { result, mykey }) => {
+    this.setState(prevState => {
+      var newArray = [
+        ...prevState["vendor"].slice(0,mykey),
+        result.title,
+        ...prevState["vendor"].slice(mykey + 1)
+      ];
+      return { "vendor" : newArray }
+    })
+  }
 
   handleSubmit = () => {
     const {category_id, product_name, model_number, current_qty, min_qty, vendor, item_number, link_to_item, location, description} = this.state
@@ -55,7 +63,7 @@ export default class AddProductForm extends Component {
       category_id, product_name, model_number, current_qty, min_qty, vendor, item_number, link_to_item, location, description
     }
 
-    axios.post("http://localhost:80/my-app/src/server/php/add_product.php", qs.stringify(new_product))
+    axios.post("http://localhost:8080/my-app/src/server/php/add_product.php", qs.stringify(new_product))
       .then(res => {
         console.log(res.data)
       })
@@ -66,16 +74,35 @@ export default class AddProductForm extends Component {
     for(var i=0; i < numberOfElements;i++) {
       locationFormGroup.push(
         <LocationFormGroup
-          locationVal={this.state.location[i]}
-          curQtyVal={this.state.current_qty[i]}
+          location={this.state.location[i]}
+          curQtyVal={this.state.current_qty[i] || 0}
           min_qty={this.state.min_qty}
           index={i}
           key={i}
           onChange={this.handleArrayChange}
+          isMultLocations = {numberOfElements > 1}
         />
       )
     }
     return locationFormGroup
+  }
+
+  renderVendorFormGroup = numberOfElements => {
+    let vendorFormGroup = []
+    for(var i =0; i < numberOfElements; i++) {
+      vendorFormGroup.push(
+        <VendorFormGroup
+          vendor={this.state.vendor[i]}
+          item_number={this.state.item_number[i]}
+          link_to_item={this.state.link_to_item[i]}
+          onSearchChange={this.handleArrayChange}
+          onResultSelect={this.handleResultSelect}
+          isMultLocations = {numberOfElements > 1}
+          key={i}
+          index={i}
+        />)
+    }
+    return vendorFormGroup
   }
 
   render() {
@@ -84,11 +111,9 @@ export default class AddProductForm extends Component {
       product_name,
       model_number,
       category_id,
-      vendor,
-      item_number,
-      link_to_item,
       description,
-      locationCount
+      locationCount,
+      vendorCount
     } = this.state
     return (
       <div style={{margin: "10px 100px"}}>
@@ -113,31 +138,38 @@ export default class AddProductForm extends Component {
 
             <Divider horizontal inverted>Supplier</Divider>
 
-            <VendorFormGroup
-              vendor={vendor}
-              item_number={item_number}
-              link_to_item={link_to_item}
-              onSearchChange={this.handleChange}
-              onResultSelect={this.handleResultSelect}
-            />
+            <div style={{cursor: "pointer", padding: "5px 0", display: "inline"}}>
+              <Icon
+                name="plus"
+                onClick={() => (this.setState(prevState => ({ vendorCount : (prevState.vendorCount + 1) })))}>
+              </Icon>
+              <Icon
+                name="minus"
+                onClick={() => (this.setState(prevState => ({ vendorCount : (prevState.vendorCount > 1) ? (prevState.vendorCount - 1) : prevState.vendorCount })))}>
+              </Icon>
+            </div>
 
-            <Divider horizontal inverted>TMF</Divider>
+            {this.renderVendorFormGroup(vendorCount)}
 
-            <div style={{cursor: "pointer", padding: "5px 0", border: "1px solid white", display: "inline"}}>
+            <Divider horizontal inverted>Tulsa Metal Finishing</Divider>
+
+            <div style={{cursor: "pointer", padding: "5px 0", display: "inline"}}>
               <Icon
                 name="plus"
                 onClick={() => (this.setState(prevState => ({ locationCount : (prevState.locationCount + 1) })))}>
               </Icon>
               <Icon
                 name="minus"
-                onClick={() => (this.setState(prevState => ({ locationCount : (prevState.locationCount - 1) })))}>
+                onClick={() => (this.setState(prevState => ({ locationCount : (prevState.locationCount > 1) ? (prevState.locationCount - 1) : prevState.locationCount })))}>
               </Icon>
             </div>
 
             {this.renderLocationFormGroup(locationCount)}
 
-            <Form.Field>
-              <label style={{margin: "30px 0 0"}}>Description</label>
+            <Form.Field style ={{
+              margin: "50px 0 20px"
+            }}>
+              <label>Description</label>
               <Form.TextArea
                 name="description"
                 value={description}
@@ -168,30 +200,36 @@ class LocationFormGroup extends Component {
 
   render() {
     const { isMinQtyChecked } = this.state
+    const { location, index, onChange, curQtyVal, min_qty, isMultLocations } = this.props
 
     return (
-      <div>
+      <div style={{
+        marginTop: "10px",
+        marginBottom: "40px"
+      }}>
       <Form.Group>
         <Form.Field width={5}>
           <Form.Input
             name="location"
-            value={this.props.locationVal || ""}
-            mykey = {this.props.index}
-            label="Location"
+            value={location || ""}
+            mykey = {index}
+            label={(isMultLocations) ? `Location #${(index + 1)}` : "Location"}
             fluid
             placeholder="e.g. Storage Room - Bin 156..."
-            onChange={this.props.onChange}
+            onChange={onChange}
+            size="small"
           />
         </Form.Field>
         <Form.Field width={2}>
           <Form.Input
             name="current_qty"
-            value={this.props.curQtyVal}
-            onChange={this.props.onChange}
-            mykey={this.props.index}
+            value={curQtyVal}
+            onChange={onChange}
+            mykey={index}
             fluid label="Current Stock"
             type="number"
             min="0"
+            size="small"
           />
         </Form.Field>
       </Form.Group>
@@ -203,12 +241,13 @@ class LocationFormGroup extends Component {
         <Form.Input
           name="min_qty"
           fluid label='Min Qty'
-          value={this.props.min_qty}
+          value={min_qty}
           type="number"
           width={2}
           min={0}
-          onChange={this.props.onChange}
-          mykey={this.props.index}
+          size="small"
+          onChange={onChange}
+          mykey={index}
         />
       }
       </div>
@@ -216,16 +255,21 @@ class LocationFormGroup extends Component {
   }
 }
 
-const VendorFormGroup = ({ vendor, item_number, link_to_item, onSearchChange, onResultSelect  }) => (
-  <Form.Group>
+const VendorFormGroup = ({ vendor, item_number, link_to_item, onSearchChange, onResultSelect, isMultLocations, index  }) => (
+  <Form.Group style={{
+    marginTop: "10px",
+    marginBottom: "40px"
+  }}>
     <Form.Field width={5}>
-      <label>Vendor</label>
+      <label>{(isMultLocations) ? `Vendor #${(index + 1)}` : "Vendor"}</label>
       <VendorSearchBar
         name="vendor"
         selectFirstResult
         value={vendor}
+        size="small"
         onSearchChange={onSearchChange}
         onResultSelect={onResultSelect}
+        mykey={index}
       />
     </Form.Field>
     <Form.Field width={3}>
@@ -233,8 +277,10 @@ const VendorFormGroup = ({ vendor, item_number, link_to_item, onSearchChange, on
         name="item_number"
         value={item_number}
         fluid
+        size="small"
         label="Item #"
         onChange={onSearchChange}
+        mykey={index}
       />
     </Form.Field>
     <Form.Field width={7}>
@@ -242,9 +288,11 @@ const VendorFormGroup = ({ vendor, item_number, link_to_item, onSearchChange, on
         name="link_to_item"
         value={link_to_item}
         fluid
+        size="small"
         label="Link to Item"
         placeholder="http://supplierwebsite.com/item..."
         onChange={onSearchChange}
+        mykey={index}
       />
     </Form.Field>
   </Form.Group>
@@ -259,6 +307,7 @@ const CategoryDropbox = ({ category_id, categories, onChange }) => (
         value={category_id}
         onChange={onChange}
         required
+        size="small"
         placeholder='Choose Category'
         options={
           categories && categories.map((category, i) => ({
@@ -280,7 +329,10 @@ const AddItemHeader = () => (
 )
 
 const ProductFormGroup = ({ product_name, model_number, onChange }) => (
-  <Form.Group>
+  <Form.Group style={{
+    marginTop: "40px",
+    marginBottom: "40px"
+  }}>
     <Form.Input
       name="product_name"
       value={product_name}
@@ -289,6 +341,7 @@ const ProductFormGroup = ({ product_name, model_number, onChange }) => (
       placeholder='e.g. Fuse, LPJ20A (10 pack)...'
       width={6}
       required
+      size="small"
     />
     <Form.Input
       name="model_number"
@@ -297,6 +350,7 @@ const ProductFormGroup = ({ product_name, model_number, onChange }) => (
       fluid label='Model Number'
       placeholder='e.g. 1A2B3C...'
       width={4}
+      size="small"
     />
   </Form.Group>
 )

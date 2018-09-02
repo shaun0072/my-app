@@ -1,5 +1,7 @@
 CREATE DATABASE tmf_db;
 
+USE tmf_db;
+
 CREATE TABLE products (
   product_id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	product_name VARCHAR(150) NOT NULL,

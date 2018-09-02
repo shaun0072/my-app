@@ -20,7 +20,7 @@ class SearchProduct extends Component {
   }
 
   componentDidMount() {
-    axios.get("http://localhost:80/my-app/src/server/php/get_products.php")
+    axios.get("http://localhost:8080/my-app/src/server/php/get_products.php")
       .then(res => {
         this.setState({
           source : res.data

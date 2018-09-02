@@ -8,7 +8,8 @@ export default class VendorSearchBar extends Component {
     super(props)
 
     this.state={
-      vendors: []
+      vendors: [],
+      value: props.value && ""
     }
   }
   componentWillMount() {
@@ -16,7 +17,7 @@ export default class VendorSearchBar extends Component {
   }
 
   componentDidMount() {
-    axios.get("http://localhost:80/my-app/src/server/php/get_vendors.php")
+    axios.get("http://localhost:8080/my-app/src/server/php/get_vendors.php")
       .then(res => {
         this.setState({
           vendors : res.data,
@@ -38,7 +39,8 @@ export default class VendorSearchBar extends Component {
     this.setState({ isLoading: true, value })
 
     setTimeout(() => {
-      if (this.state.value.length < 1) return this.resetComponent()
+
+      if (value < 1) return this.resetComponent()
 
       const re = new RegExp(_.escapeRegExp(this.state.value), 'i')
       const isMatch = result => re.test(result.title)
@@ -51,7 +53,7 @@ export default class VendorSearchBar extends Component {
   }
 
   render() {
-    const { isLoading, results } = this.state
+    const { isLoading, results, value } = this.state
 
     return (
       <Search
@@ -59,7 +61,7 @@ export default class VendorSearchBar extends Component {
         loading={isLoading}
         onResultSelect={this.handleResultSelect}
         results={results}
-        value={this.props.value}
+        value={value || ""}
         {...this.props}
       />
     )

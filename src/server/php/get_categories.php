@@ -20,7 +20,7 @@ if($_SERVER['REQUEST_METHOD'] === 'GET') {
     FROM
     categories
     GROUP BY category_name
-    ORDER BY category_id
+    ORDER BY category_name ASC
     ');
 
   if(!$result) {
