@@ -12,10 +12,11 @@
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "1.1.4",
+    "react-scripts": "^1.1.5",
     "reactstrap": "^6.2.0",
     "semantic-ui": "^2.3.3",
-    "semantic-ui-react": "^0.82.1"
+    "semantic-ui-react": "^0.82.1",
+    "immutability-helper": "^2.7.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -34,5 +35,6 @@
   "bugs": {
     "url": "https://github.com/shaun0072/my-app/issues"
   },
-  "homepage": "https://github.com/shaun0072/my-app#readme"
+  "homepage": "https://github.com/shaun0072/my-app#readme",
+  "devDependencies": {}
 }
