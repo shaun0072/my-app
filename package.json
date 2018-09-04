@@ -34,5 +34,8 @@
   "bugs": {
     "url": "https://github.com/shaun0072/my-app/issues"
   },
-  "homepage": "https://github.com/shaun0072/my-app#readme"
+  "homepage": "https://github.com/shaun0072/my-app#readme",
+  "devDependencies": {
+    "immutability-helper": "^2.7.1"
+  }
 }
