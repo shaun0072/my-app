@@ -2,21 +2,26 @@ import React, { Component } from 'react'
 import qs from 'qs'
 import axios from 'axios';
 import { Header, Icon, Form, Segment, Dropdown, Divider } from 'semantic-ui-react'
-import VendorSearchBar from './VendorSearchBar'
+import { VendorFormGroup } from './VendorFormGroup'
+import update from 'immutability-helper'
 
 export default class AddProductForm extends Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      vendor: [],
+      vendors: [
+        {
+          vendor: "",
+          item_number: "",
+          link_to_item: ""
+        }
+      ],
       category_id: '',
       product_name: '',
       model_number: '',
       current_qty: [],
       min_qty: [],
-      item_number: [],
-      link_to_item: [],
       location: [],
       description: '',
       locationCount: 1,
@@ -33,9 +38,24 @@ export default class AddProductForm extends Component {
       })
   }
 
-  handleChange = (e, { name, value }) => {this.setState({ [name]: value })}
+  handleChange = (e, { name, value, groupname, index }) => {
+    if(groupname) {
+
+      var newArray = update(
+        this.state[groupname],
+        {
+          [index]: { [name]:  {$set : value} }
+        }
+      )
+
+      this.setState({ vendors: newArray })
+    } else {
+      this.setState({ [name]: value })
+    }
+  }
 
   handleArrayChange = (e, { name, value, mykey }) => {
+    console.log("called")
     this.setState( prevState => {
       var newArray = [
         ...prevState[name].slice(0, mykey),
@@ -58,9 +78,23 @@ export default class AddProductForm extends Component {
   }
 
   handleSubmit = () => {
-    const {category_id, product_name, model_number, current_qty, min_qty, vendor, item_number, link_to_item, location, description} = this.state
+    const {
+      category_id,
+      product_name,
+      model_number,
+      current_qty,
+      min_qty,
+      location,
+      description
+    } = this.state
     const new_product = {
-      category_id, product_name, model_number, current_qty, min_qty, vendor, item_number, link_to_item, location, description
+      category_id,
+      product_name,
+      model_number,
+      current_qty,
+      min_qty,
+      location,
+      description
     }
 
     axios.post("http://localhost:8080/my-app/src/server/php/add_product.php", qs.stringify(new_product))
@@ -92,10 +126,11 @@ export default class AddProductForm extends Component {
     for(var i =0; i < numberOfElements; i++) {
       vendorFormGroup.push(
         <VendorFormGroup
-          vendor={this.state.vendor[i]}
-          item_number={this.state.item_number[i]}
-          link_to_item={this.state.link_to_item[i]}
-          onSearchChange={this.handleArrayChange}
+          groupname="vendors"
+          vendor={this.state.vendors[i].vendor}
+          item_number={this.state.vendors[i].item_number}
+          link_to_item={this.state.vendors[i].link_to_item}
+          onSearchChange={this.handleChange}
           onResultSelect={this.handleResultSelect}
           isMultLocations = {numberOfElements > 1}
           key={i}
@@ -141,11 +176,18 @@ export default class AddProductForm extends Component {
             <div style={{cursor: "pointer", padding: "5px 0", display: "inline"}}>
               <Icon
                 name="plus"
-                onClick={() => (this.setState(prevState => ({ vendorCount : (prevState.vendorCount + 1) })))}>
+                onClick={() => (
+                  this.setState(prevState => (
+                    {
+                      vendorCount : (prevState.vendorCount + 1)
+                    }
+                  )))}>
               </Icon>
               <Icon
                 name="minus"
-                onClick={() => (this.setState(prevState => ({ vendorCount : (prevState.vendorCount > 1) ? (prevState.vendorCount - 1) : prevState.vendorCount })))}>
+                onClick={() => (this.setState(prevState => (
+                  {
+                    vendorCount : (prevState.vendorCount > 1) ? (prevState.vendorCount - 1) : prevState.vendorCount })))}>
               </Icon>
             </div>
 
@@ -174,7 +216,7 @@ export default class AddProductForm extends Component {
                 name="description"
                 value={description}
                 placeholder='Enter Tags (e.g. 1700 pump 1.5" valve hoist motor 20 amps... )'
-                onChange={this.handleAChange}
+                onChange={this.handleChange}
               />
             </Form.Field>
 
@@ -254,49 +296,6 @@ class LocationFormGroup extends Component {
     )
   }
 }
-
-const VendorFormGroup = ({ vendor, item_number, link_to_item, onSearchChange, onResultSelect, isMultLocations, index  }) => (
-  <Form.Group style={{
-    marginTop: "10px",
-    marginBottom: "40px"
-  }}>
-    <Form.Field width={5}>
-      <label>{(isMultLocations) ? `Vendor #${(index + 1)}` : "Vendor"}</label>
-      <VendorSearchBar
-        name="vendor"
-        selectFirstResult
-        value={vendor}
-        size="small"
-        onSearchChange={onSearchChange}
-        onResultSelect={onResultSelect}
-        mykey={index}
-      />
-    </Form.Field>
-    <Form.Field width={3}>
-      <Form.Input
-        name="item_number"
-        value={item_number}
-        fluid
-        size="small"
-        label="Item #"
-        onChange={onSearchChange}
-        mykey={index}
-      />
-    </Form.Field>
-    <Form.Field width={7}>
-      <Form.Input
-        name="link_to_item"
-        value={link_to_item}
-        fluid
-        size="small"
-        label="Link to Item"
-        placeholder="http://supplierwebsite.com/item..."
-        onChange={onSearchChange}
-        mykey={index}
-      />
-    </Form.Field>
-  </Form.Group>
-)
 
 const CategoryDropbox = ({ category_id, categories, onChange }) => (
   <Form.Group inline>
