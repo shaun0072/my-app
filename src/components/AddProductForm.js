@@ -40,14 +40,12 @@ export default class AddProductForm extends Component {
 
   handleChange = (e, { name, value, groupname, index }) => {
     if(groupname) {
-
       var newArray = update(
         this.state[groupname],
         {
           [index]: { [name]:  {$set : value} }
         }
       )
-
       this.setState({ vendors: newArray })
     } else {
       this.setState({ [name]: value })
@@ -97,7 +95,8 @@ export default class AddProductForm extends Component {
       description
     }
 
-    axios.post("http://localhost:8080/my-app/src/server/php/add_product.php", qs.stringify(new_product))
+    axios.post("http://localhost:8080/my-app/src/server/php/add_product.php",
+    qs.stringify(new_product))
       .then(res => {
         console.log(res.data)
       })
@@ -127,9 +126,11 @@ export default class AddProductForm extends Component {
       vendorFormGroup.push(
         <VendorFormGroup
           groupname="vendors"
-          vendor={this.state.vendors[i].vendor}
-          item_number={this.state.vendors[i].item_number}
-          link_to_item={this.state.vendors[i].link_to_item}
+          vendor={(this.state.vendors[i]) ?
+            this.state.vendors[i].vendor :
+            this.setState(prevState => {})}
+          item_number={(this.state.vendors[i]) ? this.state.vendors[i].item_number : ""}
+          link_to_item={(this.state.vendors[i]) ? this.state.vendors[i].link_to_item : ""}
           onSearchChange={this.handleChange}
           onResultSelect={this.handleResultSelect}
           isMultLocations = {numberOfElements > 1}

@@ -3,7 +3,16 @@ import { Form } from 'semantic-ui-react'
 import VendorSearchBar from './VendorSearchBar'
 
 
-export const VendorFormGroup = ({ vendor, item_number, link_to_item, onSearchChange, onResultSelect, isMultLocations, index, groupname  }) => (
+export const VendorFormGroup = ({
+  vendor,
+  item_number,
+  link_to_item,
+  onSearchChange,
+  onResultSelect,
+  isMultLocations,
+  index,
+  groupname
+}) => (
   <Form.Group style={{
     marginTop: "10px",
     marginBottom: "40px"
@@ -31,6 +40,8 @@ export const VendorFormGroup = ({ vendor, item_number, link_to_item, onSearchCha
         label="Item #"
         onChange={onSearchChange}
         mykey={index}
+        index={index}
+        groupname={groupname}
       />
     </Form.Field>
     <Form.Field width={7}>
@@ -43,6 +54,8 @@ export const VendorFormGroup = ({ vendor, item_number, link_to_item, onSearchCha
         placeholder="http://supplierwebsite.com/item..."
         onChange={onSearchChange}
         mykey={index}
+        index={index}
+        groupname={groupname}
       />
     </Form.Field>
   </Form.Group>

@@ -40,3 +40,11 @@ CREATE TABLE categories (
   category_id INT(5) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   category_name VARCHAR(80) NOT NULL
 );
+
+-- Initiate Values
+INSERT INTO categories VALUES('', 'Lab');
+INSERT INTO categories VALUES('', 'Warehouse');
+INSERT INTO categories VALUES('', 'Office');
+INSERT INTO categories VALUES('', 'Bulk Chemistry');
+INSERT INTO categories VALUES('', 'Storage');
+INSERT INTO categories VALUES('', 'Paint');
