@@ -1,8 +1,11 @@
 import React, { Component } from 'react'
 import qs from 'qs'
 import axios from 'axios';
-import { Header, Icon, Form, Segment, Dropdown, Divider } from 'semantic-ui-react'
+import { Header, Icon, Form, Segment, Divider } from 'semantic-ui-react'
 import { VendorFormGroup } from './VendorFormGroup'
+import { ProductFormGroup } from './ProductFormGroup'
+import { CategoryDropbox } from './CategoryDropbox'
+import LocationFormGroup from './LocationFormGroup'
 import update from 'immutability-helper'
 
 export default class AddProductForm extends Component {
@@ -50,18 +53,6 @@ export default class AddProductForm extends Component {
     } else {
       this.setState({ [name]: value })
     }
-  }
-
-  handleArrayChange = (e, { name, value, mykey }) => {
-    console.log("called")
-    this.setState( prevState => {
-      var newArray = [
-        ...prevState[name].slice(0, mykey),
-        value,
-        ...prevState[name].slice(mykey + 1)
-      ];
-      return { [name] : newArray }
-    })
   }
 
   handleResultSelect = (e, { result, mykey }) => {
@@ -126,11 +117,9 @@ export default class AddProductForm extends Component {
       vendorFormGroup.push(
         <VendorFormGroup
           groupname="vendors"
-          vendor={(this.state.vendors[i]) ?
-            this.state.vendors[i].vendor :
-            this.setState(prevState => {})}
-          item_number={(this.state.vendors[i]) ? this.state.vendors[i].item_number : ""}
-          link_to_item={(this.state.vendors[i]) ? this.state.vendors[i].link_to_item : ""}
+          vendor={this.state.vendors[i].vendor}
+          item_number={this.state.vendors[i].item_number}
+          link_to_item={this.state.vendors[i].link_to_item}
           onSearchChange={this.handleChange}
           onResultSelect={this.handleResultSelect}
           isMultLocations = {numberOfElements > 1}
@@ -179,9 +168,7 @@ export default class AddProductForm extends Component {
                 name="plus"
                 onClick={() => (
                   this.setState(prevState => (
-                    {
-                      vendorCount : (prevState.vendorCount + 1)
-                    }
+                    { vendorCount : (prevState.vendorCount + 1), vendors: [...prevState.vendors, {vendors:"", item_number:"", link_to_item:""}]}
                   )))}>
               </Icon>
               <Icon
@@ -230,127 +217,9 @@ export default class AddProductForm extends Component {
   }
 }
 
-class LocationFormGroup extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      isMinQtyChecked: false
-    }
-  }
-
-  handleClick = () => this.setState
-
-  render() {
-    const { isMinQtyChecked } = this.state
-    const { location, index, onChange, curQtyVal, min_qty, isMultLocations } = this.props
-
-    return (
-      <div style={{
-        marginTop: "10px",
-        marginBottom: "40px"
-      }}>
-      <Form.Group>
-        <Form.Field width={5}>
-          <Form.Input
-            name="location"
-            value={location || ""}
-            mykey = {index}
-            label={(isMultLocations) ? `Location #${(index + 1)}` : "Location"}
-            fluid
-            placeholder="e.g. Storage Room - Bin 156..."
-            onChange={onChange}
-            size="small"
-          />
-        </Form.Field>
-        <Form.Field width={2}>
-          <Form.Input
-            name="current_qty"
-            value={curQtyVal}
-            onChange={onChange}
-            mykey={index}
-            fluid label="Current Stock"
-            type="number"
-            min="0"
-            size="small"
-          />
-        </Form.Field>
-      </Form.Group>
-      <Form.Checkbox
-        label="Minimum Inventory Requirement"
-        onClick={() => (this.setState(prevState => ({isMinQtyChecked : !prevState.isMinQtyChecked})))}
-      />
-      {isMinQtyChecked &&
-        <Form.Input
-          name="min_qty"
-          fluid label='Min Qty'
-          value={min_qty}
-          type="number"
-          width={2}
-          min={0}
-          size="small"
-          onChange={onChange}
-          mykey={index}
-        />
-      }
-      </div>
-    )
-  }
-}
-
-const CategoryDropbox = ({ category_id, categories, onChange }) => (
-  <Form.Group inline>
-    <Form.Field required>
-      <label>Category </label>
-      <Dropdown
-        name="category_id"
-        value={category_id}
-        onChange={onChange}
-        required
-        size="small"
-        placeholder='Choose Category'
-        options={
-          categories && categories.map((category, i) => ({
-            key:i,
-            text:category.category_name,
-            value:category.category_id
-          }))
-        }
-      />
-    </Form.Field>
-  </Form.Group>
-)
-
 const AddItemHeader = () => (
   <Header as='h1' icon style={{margin: "50px auto 30px", width: "100%"}}>
     <Icon name="wpforms" />
     Add Item
   </Header>
-)
-
-const ProductFormGroup = ({ product_name, model_number, onChange }) => (
-  <Form.Group style={{
-    marginTop: "40px",
-    marginBottom: "40px"
-  }}>
-    <Form.Input
-      name="product_name"
-      value={product_name}
-      onChange={onChange}
-      fluid label='Product Name'
-      placeholder='e.g. Fuse, LPJ20A (10 pack)...'
-      width={6}
-      required
-      size="small"
-    />
-    <Form.Input
-      name="model_number"
-      value={model_number}
-      onChange={onChange}
-      fluid label='Model Number'
-      placeholder='e.g. 1A2B3C...'
-      width={4}
-      size="small"
-    />
-  </Form.Group>
 )
