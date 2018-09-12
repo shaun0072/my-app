@@ -6,6 +6,7 @@ import { VendorFormGroup } from './VendorFormGroup'
 import { ProductFormGroup } from './ProductFormGroup'
 import { CategoryDropbox } from './CategoryDropbox'
 import LocationFormGroup from './LocationFormGroup'
+import { AddRemoveFormGroupBtns } from './AddRemoveFormGroupBtns'
 import update from 'immutability-helper'
 
 export default class AddProductForm extends Component {
@@ -23,9 +24,13 @@ export default class AddProductForm extends Component {
       category_id: '',
       product_name: '',
       model_number: '',
-      current_qty: [],
-      min_qty: [],
-      location: [],
+      locations: [
+        {
+          location: "",
+          cur_qty: "",
+          min_qty: ""
+        }
+      ],
       description: '',
       locationCount: 1,
       vendorCount: 1
@@ -49,20 +54,21 @@ export default class AddProductForm extends Component {
           [index]: { [name]:  {$set : value} }
         }
       )
-      this.setState({ vendors: newArray })
+      this.setState({ [groupname]: newArray })
     } else {
       this.setState({ [name]: value })
     }
   }
 
-  handleResultSelect = (e, { result, mykey }) => {
+  handleResultSelect = (e, { result, index }) => {
     this.setState(prevState => {
-      var newArray = [
-        ...prevState["vendor"].slice(0,mykey),
-        result.title,
-        ...prevState["vendor"].slice(mykey + 1)
-      ];
-      return { "vendor" : newArray }
+      const updatedVendors = update(
+        prevState.vendors,
+        {
+          [index]: { vendor: {$set: result.title} }
+        }
+      )
+      return { vendors : updatedVendors }
     })
   }
 
@@ -71,18 +77,16 @@ export default class AddProductForm extends Component {
       category_id,
       product_name,
       model_number,
-      current_qty,
-      min_qty,
-      location,
+      locations,
+      vendors,
       description
     } = this.state
     const new_product = {
       category_id,
       product_name,
       model_number,
-      current_qty,
-      min_qty,
-      location,
+      locations,
+      vendors,
       description
     }
 
@@ -98,12 +102,13 @@ export default class AddProductForm extends Component {
     for(var i=0; i < numberOfElements;i++) {
       locationFormGroup.push(
         <LocationFormGroup
-          location={this.state.location[i]}
-          curQtyVal={this.state.current_qty[i] || 0}
-          min_qty={this.state.min_qty}
+          groupname="locations"
+          location={this.state.locations[i].location}
+          cur_qty={this.state.locations[i].cur_qty}
+          min_qty={this.state.locations[i].min_qty}
           index={i}
           key={i}
-          onChange={this.handleArrayChange}
+          onChange={this.handleChange}
           isMultLocations = {numberOfElements > 1}
         />
       )
@@ -113,7 +118,7 @@ export default class AddProductForm extends Component {
 
   renderVendorFormGroup = numberOfElements => {
     let vendorFormGroup = []
-    for(var i =0; i < numberOfElements; i++) {
+    for(var i=0; i < numberOfElements; i++) {
       vendorFormGroup.push(
         <VendorFormGroup
           groupname="vendors"
@@ -129,6 +134,25 @@ export default class AddProductForm extends Component {
     }
     return vendorFormGroup
   }
+
+  removeElement = group => {
+    const copiedArray = [...group]
+    copiedArray.splice(-1,1)
+    return copiedArray
+  }
+
+  addGroup = ( counter, groupname, groupnameValues ) => () => {
+    this.setState(prevState => (
+      { [counter] : (prevState[counter] + 1), [groupname]: [...prevState[groupname], groupnameValues]}
+  ))}
+
+  removeGroup = ( counter, groupname ) => () => {
+    this.setState(prevState => (
+    {
+      [counter]: (prevState[counter] > 1) ? (prevState[counter] - 1) : prevState[counter],
+      [groupname]: (prevState[counter] > 1) ? this.removeElement(prevState[groupname]) : prevState[groupname]
+    }
+  ))}
 
   render() {
     const {
@@ -163,36 +187,19 @@ export default class AddProductForm extends Component {
 
             <Divider horizontal inverted>Supplier</Divider>
 
-            <div style={{cursor: "pointer", padding: "5px 0", display: "inline"}}>
-              <Icon
-                name="plus"
-                onClick={() => (
-                  this.setState(prevState => (
-                    { vendorCount : (prevState.vendorCount + 1), vendors: [...prevState.vendors, {vendors:"", item_number:"", link_to_item:""}]}
-                  )))}>
-              </Icon>
-              <Icon
-                name="minus"
-                onClick={() => (this.setState(prevState => (
-                  {
-                    vendorCount : (prevState.vendorCount > 1) ? (prevState.vendorCount - 1) : prevState.vendorCount })))}>
-              </Icon>
-            </div>
+            <AddRemoveFormGroupBtns
+              onPlusClick={this.addGroup("vendorCount", "vendors", {vendor:"", item_number:"", link_to_item:""})}
+              onMinusClick={this.removeGroup("vendorCount", "vendors")}
+            />
 
             {this.renderVendorFormGroup(vendorCount)}
 
             <Divider horizontal inverted>Tulsa Metal Finishing</Divider>
 
-            <div style={{cursor: "pointer", padding: "5px 0", display: "inline"}}>
-              <Icon
-                name="plus"
-                onClick={() => (this.setState(prevState => ({ locationCount : (prevState.locationCount + 1) })))}>
-              </Icon>
-              <Icon
-                name="minus"
-                onClick={() => (this.setState(prevState => ({ locationCount : (prevState.locationCount > 1) ? (prevState.locationCount - 1) : prevState.locationCount })))}>
-              </Icon>
-            </div>
+            <AddRemoveFormGroupBtns
+              onPlusClick={this.addGroup("locationCount", "locations", {location:"", cur_qty:"", min_qty:""})}
+              onMinusClick={this.removeGroup("locationCount", "locations")}
+            />
 
             {this.renderLocationFormGroup(locationCount)}
 
@@ -207,7 +214,6 @@ export default class AddProductForm extends Component {
                 onChange={this.handleChange}
               />
             </Form.Field>
-
 
             <Form.Button primary icon="plus" content="Add Product" />
           </Form>

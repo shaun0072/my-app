@@ -14,7 +14,7 @@ export default class LocationFormGroup extends Component {
 
   render() {
     const { isMinQtyChecked } = this.state
-    const { location, index, onChange, curQtyVal, min_qty, isMultLocations } = this.props
+    const { location, index, onChange, cur_qty, min_qty, isMultLocations, groupname } = this.props
 
     return (
       <div style={{
@@ -25,25 +25,29 @@ export default class LocationFormGroup extends Component {
         <Form.Field width={5}>
           <Form.Input
             name="location"
-            value={location || ""}
+            value={location}
             mykey = {index}
+            index={index}
             label={(isMultLocations) ? `Location #${(index + 1)}` : "Location"}
             fluid
             placeholder="e.g. Storage Room - Bin 156..."
             onChange={onChange}
             size="small"
+            groupname={groupname}
           />
         </Form.Field>
         <Form.Field width={2}>
           <Form.Input
-            name="current_qty"
-            value={curQtyVal}
+            name="cur_qty"
+            value={cur_qty}
             onChange={onChange}
             mykey={index}
+            index={index}
             fluid label="Current Stock"
             type="number"
             min="0"
             size="small"
+            groupname={groupname}
           />
         </Form.Field>
       </Form.Group>
@@ -62,6 +66,8 @@ export default class LocationFormGroup extends Component {
           size="small"
           onChange={onChange}
           mykey={index}
+          index={index}
+          groupname={groupname}
         />
       }
       </div>
