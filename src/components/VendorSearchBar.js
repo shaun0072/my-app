@@ -12,6 +12,7 @@ export default class VendorSearchBar extends Component {
       value: props.value && ""
     }
   }
+
   componentWillMount() {
     this.resetComponent()
   }
@@ -32,8 +33,6 @@ export default class VendorSearchBar extends Component {
   }
 
   resetComponent = () => this.setState({ isLoading: false, results: [], value: '' })
-
-
 
   handleSearchChange = value => {
     this.setState({ isLoading: true, value })

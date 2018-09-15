@@ -5,8 +5,8 @@ import { Header, Icon, Form, Segment, Divider } from 'semantic-ui-react'
 import { VendorFormGroup } from './VendorFormGroup'
 import { ProductFormGroup } from './ProductFormGroup'
 import { CategoryDropbox } from './CategoryDropbox'
-import LocationFormGroup from './LocationFormGroup'
 import { AddRemoveFormGroupBtns } from './AddRemoveFormGroupBtns'
+import LocationFormGroup from './LocationFormGroup'
 import update from 'immutability-helper'
 
 export default class AddProductForm extends Component {
