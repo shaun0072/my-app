@@ -95,37 +95,41 @@ if( $_SERVER['REQUEST_METHOD'] === 'POST') {
 		for($i=0;$i<count($vendors);$i++) {
 			$vendor_id;
 			//check if vendor exits in vendor table
-			$sql = "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_name = $vendors[$i]['vendor'] ";
-			$result = $conn->query($sql);
+			if ($add_vendors_stmt = $conn->prepare("SELECT vendor_id FROM vendors WHERE vendor_name=?")) {
 
-			if($result->num_rows > 0)
-			{
-		    while($row = $result->fetch_assoc()) {
-		        $vendor_id = $row['vendor_name'];
-		    }
-			}
-			else
-			{
-				$add_vendor_stmt = $conn->prepare("INSERT INTO vendor (
-					vendor_id,
-					vendor_name
-				)
-				VALUES (?,?)");
+		    /* bind parameters for markers */
+		    $add_vendors_stmt->bind_param("s", $vendors[$i]["vendor"]);
 
-				//bind
-				$add_vendor_stmt->bind_param('ss',
-					$auto_generate,
-					$vendors[$i]["vendor"]
-				);
+		    /* execute query */
+		    $add_vendors_stmt->execute();
 
-				//execute
-				$execute = $add_vendor_stmt->execute();
-				//handle errors
-				if(!$execute) {
-					echo htmlspecialchars($add_vendor_stmt->error);
-					exit;
+		    /* bind result variables */
+		    $add_vendors_stmt->bind_result($retrieved_vendor_id);
+
+		    /* fetch value */
+		    while($add_vendors_stmt->fetch()) {
+					$vendor_id = $retrieved_vendor_id;
 				}
-				$vendor_id = $conn->insert_id;
+
+				if(!isset($vendor_id)) {
+					$add_vendor_stmt = $conn->prepare("INSERT INTO vendors (
+						vendor_id,
+						vendor_name
+					)
+					VALUES (?,?)");
+
+					//bind
+					$add_vendor_stmt->bind_param('ss', $auto_generate, $vendors[$i]["vendor"]);
+
+					//execute
+					$execute = $add_vendor_stmt->execute();
+					//handle errors
+					if(!$execute) {
+						echo htmlspecialchars($add_vendor_stmt->error);
+						exit;
+					}
+					$vendor_id = $conn->insert_id;
+				}
 			}
 
 			$add_vendors_stmt = $conn->prepare("INSERT INTO product_vendor_info (

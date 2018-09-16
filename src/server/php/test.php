@@ -1,13 +1,49 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("content-type: application/x-www-form-urlencoded format");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS");
 
+include('db_fns.php');
 
-$obj = ["name" => "tsdyr"];
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $obj = $_POST;
+$conn = connect_to_db();
+
+$var="Abrite";
+
+$vendor_id;
+if($add_vendors_stmt = $conn->prepare("SELECT vendor_id FROM vendors WHERE vendor_name=?")) {
+
+  /* bind parameters for markers */
+  $add_vendors_stmt->bind_param("s", $var);
+
+  /* execute query */
+  $add_vendors_stmt->execute();
+
+  /* bind result variables */
+  $add_vendors_stmt->bind_result($retrieved_vendor_id);
+
+  /* fetch value */
+  while($add_vendors_stmt->fetch()) {
+    $vendor_id = $retrieved_vendor_id;
+  }
+
+  if(!isset($vendor_id)) {
+    $add_vendor_stmt = $conn->prepare("INSERT INTO vendors (
+      vendor_id,
+      vendor_name
+    )
+    VALUES (?,?)");
+
+    //bind
+    $add_vendor_stmt->bind_param('ss', $auto_generate, $var);
+
+    //execute
+    $execute = $add_vendor_stmt->execute();
+    //handle errors
+    if(!$execute) {
+      echo htmlspecialchars($add_vendor_stmt->error);
+      exit;
+    }
+    $vendor_id = $conn->insert_id;
+  }
 }
-echo json_encode($obj);
+
+printf($vendor_id);
+
  ?>

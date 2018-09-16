@@ -14,6 +14,9 @@ export default class AddProductForm extends Component {
     super(props)
 
     this.state = {
+      category_id: '',
+      product_name: '',
+      model_number: '',
       vendors: [
         {
           vendor: "",
@@ -21,9 +24,6 @@ export default class AddProductForm extends Component {
           link_to_item: ""
         }
       ],
-      category_id: '',
-      product_name: '',
-      model_number: '',
       locations: [
         {
           location: "",
