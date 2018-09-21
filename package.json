@@ -36,7 +36,5 @@
     "url": "https://github.com/shaun0072/my-app/issues"
   },
   "homepage": "https://github.com/shaun0072/my-app#readme",
-  "devDependencies": {
-    
-  }
+  "devDependencies": {}
 }
