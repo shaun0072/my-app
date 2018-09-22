@@ -82,14 +82,15 @@ export default class AddProductForm extends Component {
       description
     } = this.state
 
-    locations.filter(el=>(el.location))
+    var filteredLocations = locations.filter(el=>(el.location))
+    var filteredVendors= vendors.filter(el=>(el.vendor))
 
     const new_product = {
       category_id,
       product_name,
       model_number,
-      locations,
-      vendors,
+      locations: filteredLocations,
+      vendors: filteredVendors,
       description
     }
 
