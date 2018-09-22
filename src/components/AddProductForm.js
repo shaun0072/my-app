@@ -73,7 +73,7 @@ export default class AddProductForm extends Component {
   }
 
   handleSubmit = () => {
-    const {
+    let {
       category_id,
       product_name,
       model_number,
@@ -81,6 +81,9 @@ export default class AddProductForm extends Component {
       vendors,
       description
     } = this.state
+
+    locations.filter(el=>(el.location))
+
     const new_product = {
       category_id,
       product_name,

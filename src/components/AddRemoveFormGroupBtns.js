@@ -4,16 +4,24 @@ import { Icon, Button } from 'semantic-ui-react'
 export const AddRemoveFormGroupBtns = ({ onMinusClick, onPlusClick }) => (
   <div style={{cursor: "pointer", padding: "5px 0", display: "inline"}}>
     <Button.Group icon>
-       <Button>
+       <Button
+         onClick={(e)=>{
+           e.preventDefault()
+           onPlusClick()
+         }}
+       >
          <Icon
            name='plus'
-           onClick={onPlusClick}
          />
        </Button>
-       <Button>
-         <Icon name='minus'
-           name="minus"
-           onClick={onMinusClick}
+       <Button
+         onClick={(e)=>{
+           e.preventDefault()
+           onMinusClick()
+         }}
+        >
+         <Icon
+           name='minus'
          />
        </Button>
      </Button.Group>
