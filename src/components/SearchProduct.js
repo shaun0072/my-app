@@ -2,10 +2,10 @@ import _ from 'lodash'
 import React, { Component } from 'react'
 //import qs from 'qs'
 import axios from 'axios';
-import { Header, Icon, Search, Grid, Form, Segment, Dropdown, Divider } from 'semantic-ui-react'
+import { Search, Grid } from 'semantic-ui-react'
 
 
-class SearchProduct extends Component {
+export default class SearchProduct extends Component {
   constructor(props) {
     super(props)
 
@@ -69,7 +69,7 @@ class SearchProduct extends Component {
         <Grid.Column width={8}>
           <Search
             category
-            size={'mini'}
+            size={'large'}
             loading={isLoading}
             onResultSelect={this.handleResultSelect}
             onSearchChange={this.handleSearchChange}
